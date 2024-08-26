@@ -1,0 +1,12 @@
+plugins {
+    id 'java'
+}
+
+allprojects {
+    group = 'me.zdany.jchat'
+    version = '1.0.0'
+}
+
+test {
+    useJUnitPlatform()
+}
