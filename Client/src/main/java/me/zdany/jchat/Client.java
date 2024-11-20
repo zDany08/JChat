@@ -25,7 +25,7 @@ public class Client {
 		}catch(UnknownHostException e) {
 			JOptionPane.showMessageDialog(null, "Provided host not found.", "JChat", JOptionPane.ERROR_MESSAGE);
         }catch(IOException e) {
-        	e.printStackTrace();
+			Logger.error("Error starting client.");
         }
 	}
 	
@@ -51,7 +51,7 @@ public class Client {
 						break;
 				}
 			}catch(IOException e) {
-				if(running) e.printStackTrace();
+				if(running) Logger.error("Error receiving a packet.");
 				running = false;
 			}
 		}
@@ -65,7 +65,7 @@ public class Client {
 			output.close();
 			socket.close();
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.error("Error stopping client.");
         }
 	}
 	
@@ -75,7 +75,7 @@ public class Client {
 			output.writeUTF(username);
 			output.flush();
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.error("Error connecting \"" + username + "\" user.");
         }
 	}
 	
@@ -85,7 +85,7 @@ public class Client {
 			output.writeUTF(username);
 			output.flush();
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.error("Error disconnecting \"" + username + "\" user.");
         }
 	}
 	
@@ -95,7 +95,7 @@ public class Client {
 			output.writeUTF(message);
 			output.flush();
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.error("Error sending message \"" + message + "\".");
         }
 	}
 }

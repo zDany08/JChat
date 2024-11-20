@@ -5,22 +5,22 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Client extends Thread {
+public class ClientHandler extends Thread {
 	
 	private boolean connected;
-	private Server server;
-	private Socket socket;
+	private final Server server;
+	private final Socket socket;
 	private DataInputStream input;
 	private DataOutputStream output;
 	
-	public Client(Server server, Socket socket) {
+	public ClientHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
 		try {
 			input = new DataInputStream(socket.getInputStream());
 			output = new DataOutputStream(socket.getOutputStream());
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.error("Error connecting client.");
         }
 	}
 	
@@ -49,7 +49,7 @@ public class Client extends Thread {
 						break;
 				}
 			}catch(IOException e) {
-				if(connected) e.printStackTrace();
+				if(connected) Logger.error("Error receiving a packet.");
 				connected = false;
 	        }
 		}
@@ -62,7 +62,7 @@ public class Client extends Thread {
 			output.close();
 			socket.close();
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.error("Error disconnecting client.");
         }
 		server.getClients().remove(this);
 	}
@@ -73,7 +73,7 @@ public class Client extends Thread {
 			output.writeUTF(message);
 			output.flush();
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.error("Error sending message \"" + message + "\".");
         }
 	}
 	

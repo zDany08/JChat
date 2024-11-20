@@ -21,8 +21,7 @@ import javax.swing.border.StrokeBorder;
 import me.zdany.jchat.JChat;
 
 public class UI extends JPanel implements ActionListener, KeyListener {
-	
-	private JLabel hostText;
+
 	private JTextArea display;
     private JTextField input;
 
@@ -36,7 +35,7 @@ public class UI extends JPanel implements ActionListener, KeyListener {
 	}
 	
 	private void server() {
-		hostText = new JLabel();
+		JLabel hostText = new JLabel();
 		hostText.setText("Host: " + JChat.getInstance().getHost() + ":" + JChat.getInstance().getPort());
 		hostText.setLocation(20, 20);
 		hostText.setSize(460, 20);

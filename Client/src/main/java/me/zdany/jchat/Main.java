@@ -11,7 +11,7 @@ public class Main {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}catch(Exception e) {
-			e.printStackTrace();
+			Logger.error("Error setting up UI style.");
 		}
 		String username = JOptionPane.showInputDialog(null, "Username", "JChat | Username", JOptionPane.PLAIN_MESSAGE);
 		if(username == null || username.isEmpty()) username = "User";

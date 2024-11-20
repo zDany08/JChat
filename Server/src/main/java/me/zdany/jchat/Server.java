@@ -10,13 +10,13 @@ public class Server {
 	
 	private boolean running;
 	private ServerSocket socket;
-	private Set<Client> clients;
+	private final Set<ClientHandler> clients;
 	
 	public Server(int port) {
 		try {
 			socket = new ServerSocket(port);
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.error("Error starting server.");
         }
 		clients = new HashSet<>();
 	}
@@ -26,11 +26,11 @@ public class Server {
 		while(running) {
 			try {
 				Socket clientSocket = socket.accept();
-				Client client = new Client(this, clientSocket);
+				ClientHandler client = new ClientHandler(this, clientSocket);
 				client.start();
 				clients.add(client);
 			}catch(IOException e) {
-				e.printStackTrace();
+				Logger.info("Error connecting a client.");
 	        }
 		}
 	}
@@ -41,7 +41,7 @@ public class Server {
 		try {
 			socket.close();
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.info("Error stopping server.");
         }
 	}
 	
@@ -49,22 +49,22 @@ public class Server {
 		clients.forEach(client -> client.sendMessage(message));
 	}
 	
-	public void disconnect(Client client) {
+	public void disconnect(ClientHandler client) {
 		try {
 			client.getOutput().writeByte(1);
 			client.getOutput().flush();
 		}catch(IOException e) {
-			e.printStackTrace();
+			Logger.info("Error disconnecting a client.");
         }
 	}
 	
 	public void disconnectAll() {
-		Set<Client> disconnection = new HashSet<>(clients);
-		for(Client client : disconnection) disconnect(client);
+		Set<ClientHandler> disconnection = new HashSet<>(clients);
+		for(ClientHandler client : disconnection) disconnect(client);
 		clients.clear();
 	}
 
-	public Set<Client> getClients() {
+	public Set<ClientHandler> getClients() {
 		return clients;
 	}
 }

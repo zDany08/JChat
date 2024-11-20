@@ -13,7 +13,7 @@ public class Main {
 		try {
 			port = Integer.parseInt(args[0]);
 		}catch(Exception e) {
-			e.printStackTrace();
+			Logger.error("Invalid port.");
 			System.exit(1);
 		}
 		server = new Server(port);
