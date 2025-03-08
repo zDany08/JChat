@@ -20,21 +20,23 @@ import javax.swing.border.StrokeBorder;
 
 import me.zdany.jchat.JChat;
 
-public class UI extends JPanel implements ActionListener, KeyListener {
-
+public class UI extends JPanel implements ActionListener, KeyListener
+{
 	private JTextArea display;
     private JTextField input;
 
-    public UI() {
+    public UI()
+	{
 		setPreferredSize(new Dimension(500, 500));
 		setLayout(null);
-		server();
-		display();
-		input();
-		send();
+		drawServerInfos();
+		drawChatDisplay();
+		drawMessageInput();
+		drawSendButton();
 	}
 	
-	private void server() {
+	private void drawServerInfos()
+	{
 		JLabel hostText = new JLabel();
 		hostText.setText("Host: " + JChat.getInstance().getHost() + ":" + JChat.getInstance().getPort());
 		hostText.setLocation(20, 20);
@@ -45,7 +47,8 @@ public class UI extends JPanel implements ActionListener, KeyListener {
 		add(hostText);
 	}
 	
-	private void display() {
+	private void drawChatDisplay()
+	{
 		display = new JTextArea();
 		display.setBorder(new EmptyBorder(5, 5, 5, 5));
 		display.setLocation(0, 0);
@@ -64,7 +67,8 @@ public class UI extends JPanel implements ActionListener, KeyListener {
 		add(displayScroll);
 	}
 	
-	private void input() {
+	private void drawMessageInput()
+	{
 		input = new JTextField();
 		input.setBorder(new StrokeBorder(new BasicStroke(1)));
 		input.setLocation(20, 450);
@@ -79,7 +83,8 @@ public class UI extends JPanel implements ActionListener, KeyListener {
 		add(input);
 	}
 	
-	private void send() {
+	private void drawSendButton()
+	{
         JButton send = new JButton();
 		send.setText("Send");
 		send.setLocation(380, 450);
@@ -91,31 +96,39 @@ public class UI extends JPanel implements ActionListener, KeyListener {
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent event) {
+	public void actionPerformed(ActionEvent event)
+	{
 		Object obj = event.getSource();
-		if(!(obj instanceof JButton)) return;
+		if (!(obj instanceof JButton)) return;
 		sendMessage(input.getText().trim());
 	}
 	
 	@Override
-	public void keyTyped(KeyEvent event) {}
+	public void keyTyped(KeyEvent event)
+	{
+	}
 
 	@Override
-	public void keyPressed(KeyEvent event) {
+	public void keyPressed(KeyEvent event)
+	{
 		int key = event.getKeyCode();
-		if(key != KeyEvent.VK_ENTER) return;
+		if (key != KeyEvent.VK_ENTER) return;
 		sendMessage(input.getText().trim());
 	}
 
 	@Override
-	public void keyReleased(KeyEvent event) {}
+	public void keyReleased(KeyEvent event)
+	{
+	}
 	
-	public void sendMessage(String message) {
-		if(message != null && !message.isEmpty()) JChat.getInstance().getClient().sendMessage("(" + JChat.getInstance().getUsername() + ") " + message);
+	public void sendMessage(String message)
+	{
+		if (message != null && !message.isEmpty()) JChat.getInstance().getClient().sendMessage("(" + JChat.getInstance().getUsername() + ") " + message);
 		input.setText("");
 	}
 	
-	public JTextArea getDisplay() {
+	public JTextArea getDisplay()
+	{
 		return display;
 	}
 }
