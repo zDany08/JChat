@@ -1,90 +1,73 @@
 package me.zdany.jchat;
 
+import me.zdany.jchatapi.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Server
-{
+public class Server {
+
 	private boolean running;
 	private ServerSocket socket;
 	private final Set<ClientHandler> clients;
 	
-	public Server(int port)
-	{
-		try
-		{
-			socket = new ServerSocket(port);
-		}
-		catch (IOException e)
-		{
-			Logger.error("Error starting server.");
+	public Server(int port) {
+		try {
+			this.socket = new ServerSocket(port);
+		}catch(IOException e) {
+			Logger.error("Failed to start: " + e.getMessage());
         }
-		clients = new HashSet<>();
+		this.clients = new HashSet<>();
 	}
 	
-	public void start()
-	{
-		running = true;
-		while (running)
-		{
-			try
-			{
-				Socket clientSocket = socket.accept();
+	public void start() {
+		this.running = true;
+		while(this.running) {
+			try {
+				Socket clientSocket = this.socket.accept();
 				ClientHandler client = new ClientHandler(this, clientSocket);
 				client.start();
-				clients.add(client);
-			}
-			catch (IOException e)
-			{
-				Logger.info("Error connecting a client.");
+				this.clients.add(client);
+			}catch(IOException e) {
+				Logger.error("Failed to connect a client: " + e.getMessage());
 	        }
 		}
 	}
 	
-	public void stop()
-	{
-		running = false;
-		disconnectAll();
-		try
-		{
-			socket.close();
-		}
-		catch (IOException e)
-		{
-			Logger.info("Error stopping server.");
+	public void stop() {
+		Logger.info("Stopping...");
+		this.running = false;
+		this.disconnectAll();
+		try {
+			this.socket.close();
+		}catch(IOException e) {
+			Logger.error("Failed to stop: " + e.getMessage());
         }
 	}
 	
-	public void sendMessage(String message)
-	{
-		clients.forEach(client -> client.sendMessage(message));
+	public void sendMessage(String message) {
+		this.clients.forEach(client -> client.sendMessage(message));
 	}
 	
-	public void disconnect(ClientHandler client)
-	{
-		try
-		{
+	public void disconnect(ClientHandler client) {
+		try {
 			client.getOutput().writeByte(1);
 			client.getOutput().flush();
-		}
-		catch (IOException e)
-		{
-			Logger.info("Error disconnecting a client.");
+		}catch(IOException e) {
+			Logger.error("Failed to disconnect a client: " + e.getMessage());
         }
 	}
 	
-	public void disconnectAll()
-	{
-		Set<ClientHandler> disconnection = new HashSet<>(clients);
-		for(ClientHandler client : disconnection) disconnect(client);
-		clients.clear();
+	public void disconnectAll() {
+		Set<ClientHandler> disconnection = new HashSet<>(this.clients);
+		for(ClientHandler client : disconnection) this.disconnect(client);
+		this.clients.clear();
 	}
 
-	public Set<ClientHandler> getClients()
-	{
-		return clients;
+	public Set<ClientHandler> getClients() {
+		return this.clients;
 	}
 }

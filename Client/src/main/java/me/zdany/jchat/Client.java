@@ -1,5 +1,7 @@
 package me.zdany.jchat;
 
+import me.zdany.jchatapi.Logger;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,125 +10,96 @@ import java.net.UnknownHostException;
 
 import javax.swing.*;
 
-public class Client
-{
+public class Client {
+
 	private boolean running, newLine;
 	private Socket socket;
 	private DataInputStream input;
 	private DataOutputStream output;
 	
-	public Client()
-	{
+	public Client() {
 		this.newLine = false;
-		try
-		{
-			socket = new Socket(JChat.getInstance().getHost(), JChat.getInstance().getPort());
-			input = new DataInputStream(socket.getInputStream());
-			output = new DataOutputStream(socket.getOutputStream());
-			connect(JChat.getInstance().getUsername());
-		}
-		catch (UnknownHostException e)
-		{
-			JOptionPane.showMessageDialog(null, "Provided host not found.", "JChat", JOptionPane.ERROR_MESSAGE);
-        }
-		catch (IOException e)
-		{
-			Logger.error("Error starting client.");
+		try {
+			this.socket = new Socket(JChat.getInstance().getHost(), JChat.getInstance().getPort());
+			this.input = new DataInputStream(this.socket.getInputStream());
+			this.output = new DataOutputStream(this.socket.getOutputStream());
+			this.connect(JChat.getInstance().getUsername());
+		}catch(UnknownHostException e) {
+			String message = "Provided host not found";
+			JOptionPane.showMessageDialog(null, message + ".", "JChat", JOptionPane.ERROR_MESSAGE);
+			Logger.error(message + ": " + e.getMessage());
+		}catch(IOException e) {
+			Logger.error("Failed to start: " + e.getMessage());
         }
 	}
 	
-	public void start()
-	{
-		running = true;
-		while (running)
-		{
-			try
-			{
-				byte type = input.readByte();
-				switch (type)
-				{
+	public void start() {
+		this.running = true;
+		while(this.running) {
+			try {
+				byte type = this.input.readByte();
+				switch(type) {
 					case 1:
-						stop(false);
-						System.exit(0);
+						this.stop(false);
 						break;
 					case 2:
-						String message = input.readUTF();
+						String message = this.input.readUTF();
 						JTextArea display = JChat.getInstance().getWindow().getUI().getDisplay();
-						if (newLine)
-						{
+						if(this.newLine) {
 							display.setText(display.getText() + "\n" + message);
+							return;
 						}
-						else
-						{
-							display.setText(display.getText() + message);
-							newLine = true;
-						}
+						display.setText(display.getText() + message);
+						this.newLine = true;
 						break;
 				}
-			}
-			catch (IOException e)
-			{
-				if(running) Logger.error("Error receiving a packet.");
-				running = false;
+			}catch(IOException e) {
+				if(this.running) Logger.warn("Failed to read a packet: " + e.getMessage());
+				this.running = false;
 			}
 		}
 	}
 	
-	public void stop(boolean sendRequest)
-	{
-		running = false;
-		if (sendRequest) disconnect(JChat.getInstance().getUsername());
-		try
-		{
-			input.close();
-			output.close();
-			socket.close();
-		}
-		catch (IOException e)
-		{
-			Logger.error("Error stopping client.");
+	public void stop(boolean sendRequest) {
+		this.running = false;
+		if(sendRequest) this.disconnect(JChat.getInstance().getUsername());
+		try {
+			this.input.close();
+			this.output.close();
+			this.socket.close();
+		}catch(IOException e) {
+			Logger.error("Failed to stop: " + e.getMessage());
+        }
+		System.exit(0);
+	}
+	
+	public void connect(String username) {
+		try {
+			this.output.writeByte(0);
+			this.output.writeUTF(username);
+			this.output.flush();
+		}catch(IOException e) {
+			Logger.error("Failed to connect \"" + username + "\" user: " + e.getMessage());
         }
 	}
 	
-	public void connect(String username)
-	{
-		try
-		{
-			output.writeByte(0);
-			output.writeUTF(username);
-			output.flush();
-		}
-		catch (IOException e)
-		{
-			Logger.error("Error connecting \"" + username + "\" user.");
+	public void disconnect(String username) {
+		try {
+			this.output.writeByte(1);
+			this.output.writeUTF(username);
+			this.output.flush();
+		}catch(IOException e) {
+			Logger.error("Failed to disconnect \"" + username + "\" user: " + e.getMessage());
         }
 	}
 	
-	public void disconnect(String username)
-	{
-		try
-		{
-			output.writeByte(1);
-			output.writeUTF(username);
-			output.flush();
-		}
-		catch (IOException e)
-		{
-			Logger.error("Error disconnecting \"" + username + "\" user.");
-        }
-	}
-	
-	public void sendMessage(String message)
-	{
-		try
-		{
-			output.writeByte(2);
-			output.writeUTF(message);
-			output.flush();
-		}
-		catch(IOException e)
-		{
-			Logger.error("Error sending message \"" + message + "\".");
+	public void sendMessage(String message) {
+		try {
+			this.output.writeByte(2);
+			this.output.writeUTF(message);
+			this.output.flush();
+		}catch(IOException e) {
+			Logger.warn("Failed to send message \"" + message + "\": " + e.getMessage());
         }
 	}
 }

@@ -1,102 +1,85 @@
 package me.zdany.jchat;
 
+import me.zdany.jchatapi.Logger;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ClientHandler extends Thread
-{
+public class ClientHandler extends Thread {
+
 	private boolean connected;
 	private final Server server;
 	private final Socket socket;
 	private DataInputStream input;
 	private DataOutputStream output;
 	
-	public ClientHandler(Server server, Socket socket)
-	{
+	public ClientHandler(Server server, Socket socket) {
 		this.server = server;
 		this.socket = socket;
-		try
-		{
-			input = new DataInputStream(socket.getInputStream());
-			output = new DataOutputStream(socket.getOutputStream());
-		}
-		catch (IOException e)
-		{
-			Logger.error("Error connecting client.");
+		try {
+			this.input = new DataInputStream(socket.getInputStream());
+			this.output = new DataOutputStream(socket.getOutputStream());
+		}catch(IOException e) {
+			Logger.error("Failed to connect a client: " + e.getMessage());
         }
 	}
 	
 	@Override
-	public void run()
-	{
-		connected = true;
-		while (connected)
-		{
-			try
-			{
-				byte type = input.readByte();
-				switch (type)
-				{
+	public void run() {
+		this.connected = true;
+		while(this.connected) {
+			try {
+				byte type = this.input.readByte();
+				switch(type) {
 					case 0:
-						String join = input.readUTF() + " joined the chat!";
-						server.sendMessage(join);
+						String join = this.input.readUTF() + " joined the chat!";
+						this.server.sendMessage(join);
 						System.out.println(join);
 						break;
 					case 1:
-						String quit = input.readUTF() + " left the chat!";
-						stopClient();
-						server.sendMessage(quit);
+						String quit = this.input.readUTF() + " left the chat!";
+						this.stopClient();
+						this.server.sendMessage(quit);
 						System.out.println(quit);
 						break;
 					case 2:
-						String message = input.readUTF();
-						server.sendMessage(message);
+						String message = this.input.readUTF();
+						this.server.sendMessage(message);
 						System.out.println(message);
 						break;
 				}
-			}
-			catch (IOException e)
-			{
-				if(connected) Logger.error("Error receiving a packet.");
-				connected = false;
+			}catch(IOException e) {
+				if(this.connected) Logger.warn("Failed to read a packet: " + e.getMessage());
+				this.connected = false;
 	        }
 		}
 	}
 	
-	public void stopClient()
-	{
-		connected = false;
-		try
-		{
-			input.close();
-			output.close();
-			socket.close();
-		}
-		catch (IOException e)
-		{
-			Logger.error("Error disconnecting client.");
+	public void stopClient() {
+		this.connected = false;
+		try {
+			this.input.close();
+			this.output.close();
+			this.socket.close();
+		}catch(IOException e) {
+			Logger.error("Failed to disconnect a client: " + e.getMessage());
         }
-		server.getClients().remove(this);
+		this.server.getClients().remove(this);
 	}
 	
-	public void sendMessage(String message)
-	{
-		try
-		{
-			output.writeByte(2);
-			output.writeUTF(message);
-			output.flush();
-		}
-		catch (IOException e)
-		{
-			Logger.error("Error sending message \"" + message + "\".");
+	public void sendMessage(String message) {
+		try {
+			this.output.writeByte(2);
+			this.output.writeUTF(message);
+			this.output.flush();
+		}catch(IOException e) {
+			Logger.warn("Failed to send message \"" + message + "\": " + e.getMessage());
         }
 	}
 	
-	public DataOutputStream getOutput()
-	{
-		return output;
+	public DataOutputStream getOutput() {
+		return this.output;
 	}
 }

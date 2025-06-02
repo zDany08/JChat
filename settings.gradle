@@ -1,4 +1,5 @@
 rootProject.name = "JChat"
+include "API"
 include "Client"
 include "Server"
 

@@ -4,23 +4,22 @@ import javax.swing.JFrame;
 
 import me.zdany.jchat.JChat;
 
-public class Window extends JFrame
-{
-	private final UI UI;
+import java.awt.*;
+
+public class Window extends JFrame {
+
+	private final UserInterface ui;
 	
-	public Window()
-	{
-		add(UI = new UI());
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("JChat | Typing as " + JChat.getInstance().getUsername());
-		pack();
-		setLocationRelativeTo(null);
-		setResizable(false);
-		setVisible(true);
+	public Window() {
+		this.add(ui = new UserInterface());
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setTitle("JChat | Typing as " + JChat.getInstance().getUsername());
+		this.setMinimumSize(new Dimension(500, 500));
+		this.setLocationRelativeTo(null);
+		this.setVisible(true);
 	}
 	
-	public UI getUI()
-	{
-		return UI;
+	public UserInterface getUI() {
+		return this.ui;
 	}
 }
