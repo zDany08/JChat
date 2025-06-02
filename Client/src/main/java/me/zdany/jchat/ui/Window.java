@@ -1,8 +1,8 @@
 package me.zdany.jchat.ui;
 
-import javax.swing.JFrame;
+import me.zdany.jchat.Client;
 
-import me.zdany.jchat.JChat;
+import javax.swing.JFrame;
 
 import java.awt.*;
 
@@ -10,10 +10,10 @@ public class Window extends JFrame {
 
 	private final UserInterface ui;
 	
-	public Window() {
-		this.add(ui = new UserInterface());
+	public Window(Client client) {
+		this.add(ui = new UserInterface(client));
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setTitle("JChat | Typing as " + JChat.getInstance().getUsername());
+		this.setTitle("JChat | Typing as " + client.getUsername());
 		this.setMinimumSize(new Dimension(500, 500));
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);

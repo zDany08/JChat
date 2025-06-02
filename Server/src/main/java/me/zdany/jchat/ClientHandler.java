@@ -22,7 +22,7 @@ public class ClientHandler extends Thread {
 			this.input = new DataInputStream(socket.getInputStream());
 			this.output = new DataOutputStream(socket.getOutputStream());
 		}catch(IOException e) {
-			Logger.error("Failed to connect a client: " + e.getMessage());
+			Logger.error("Failed to connect a client -> " + e.getMessage());
         }
 	}
 	
@@ -35,23 +35,23 @@ public class ClientHandler extends Thread {
 				switch(type) {
 					case 0:
 						String join = this.input.readUTF() + " joined the chat!";
-						this.server.sendMessage(join);
-						System.out.println(join);
+						this.sendMessageToAll(join);
+						Logger.info(join);
 						break;
 					case 1:
 						String quit = this.input.readUTF() + " left the chat!";
 						this.stopClient();
-						this.server.sendMessage(quit);
-						System.out.println(quit);
+						this.sendMessageToAll(quit);
+						Logger.info(quit);
 						break;
 					case 2:
 						String message = this.input.readUTF();
-						this.server.sendMessage(message);
-						System.out.println(message);
+						this.sendMessageToAll(message);
+						Logger.info(message);
 						break;
 				}
 			}catch(IOException e) {
-				if(this.connected) Logger.warn("Failed to read a packet: " + e.getMessage());
+				if(this.connected) Logger.warn("Failed to read a packet -> " + e.getMessage());
 				this.connected = false;
 	        }
 		}
@@ -64,9 +64,13 @@ public class ClientHandler extends Thread {
 			this.output.close();
 			this.socket.close();
 		}catch(IOException e) {
-			Logger.error("Failed to disconnect a client: " + e.getMessage());
+			Logger.error("Failed to disconnect a client -> " + e.getMessage());
         }
 		this.server.getClients().remove(this);
+	}
+
+	public void sendMessageToAll(String message) {
+		this.server.getClients().forEach(client -> client.sendMessage(message));
 	}
 	
 	public void sendMessage(String message) {
@@ -75,7 +79,7 @@ public class ClientHandler extends Thread {
 			this.output.writeUTF(message);
 			this.output.flush();
 		}catch(IOException e) {
-			Logger.warn("Failed to send message \"" + message + "\": " + e.getMessage());
+			Logger.warn("Failed to send message \"" + message + "\" -> " + e.getMessage());
         }
 	}
 	

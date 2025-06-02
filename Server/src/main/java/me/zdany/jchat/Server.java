@@ -18,12 +18,13 @@ public class Server {
 		try {
 			this.socket = new ServerSocket(port);
 		}catch(IOException e) {
-			Logger.error("Failed to start: " + e.getMessage());
+			Logger.error("Failed to start -> " + e.getMessage());
         }
 		this.clients = new HashSet<>();
 	}
 	
 	public void start() {
+		Logger.info("Starting...");
 		this.running = true;
 		while(this.running) {
 			try {
@@ -32,8 +33,8 @@ public class Server {
 				client.start();
 				this.clients.add(client);
 			}catch(IOException e) {
-				Logger.error("Failed to connect a client: " + e.getMessage());
-	        }
+				Logger.error("Failed to connect a client -> " + e.getMessage());
+			}
 		}
 	}
 	
@@ -44,12 +45,8 @@ public class Server {
 		try {
 			this.socket.close();
 		}catch(IOException e) {
-			Logger.error("Failed to stop: " + e.getMessage());
+			Logger.error("Failed to stop -> " + e.getMessage());
         }
-	}
-	
-	public void sendMessage(String message) {
-		this.clients.forEach(client -> client.sendMessage(message));
 	}
 	
 	public void disconnect(ClientHandler client) {
@@ -57,7 +54,7 @@ public class Server {
 			client.getOutput().writeByte(1);
 			client.getOutput().flush();
 		}catch(IOException e) {
-			Logger.error("Failed to disconnect a client: " + e.getMessage());
+			Logger.error("Failed to disconnect a client -> " + e.getMessage());
         }
 	}
 	

@@ -8,14 +8,16 @@ import java.awt.event.KeyListener;
 
 import javax.swing.*;
 
-import me.zdany.jchat.JChat;
+import me.zdany.jchat.Client;
 
 public class UserInterface extends JPanel implements ActionListener, KeyListener {
 
+	private final Client client;
 	private JTextArea display;
     private JTextField input;
 
-    public UserInterface() {
+    public UserInterface(Client client) {
+		this.client = client;
 		this.setLayout(new BorderLayout());
 		this.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 		this.renderServerInfos();
@@ -25,7 +27,7 @@ public class UserInterface extends JPanel implements ActionListener, KeyListener
 	
 	private void renderServerInfos() {
 		JLabel hostText = new JLabel();
-		hostText.setText("Host: " + JChat.getInstance().getHost() + ":" + JChat.getInstance().getPort());
+		hostText.setText("Host: " + this.client.getHost() + ":" + this.client.getPort());
 		hostText.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
 		hostText.setVisible(true);
 		this.add(hostText, BorderLayout.NORTH);
@@ -97,7 +99,7 @@ public class UserInterface extends JPanel implements ActionListener, KeyListener
 	public void keyReleased(KeyEvent event) {}
 	
 	public void sendMessage(String message) {
-		if(message != null && !message.isEmpty()) JChat.getInstance().getClient().sendMessage("(" + JChat.getInstance().getUsername() + ") " + message);
+		if(message != null && !message.isEmpty()) this.client.sendMessage(message);
 		this.input.setText("");
 	}
 	
